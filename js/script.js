@@ -19,10 +19,9 @@ class Utils {
         let val = valStr.trim().replace(',', '.');
         if (val === '') return { valid: false, msg: 'Campo requerido' };
         
-        // Expresión regular estricta: bloquea "12a3", "10.2.4", "Infinity", etc.
         const regex = allowNegative ? /^-?\d+(\.\d+)?$/ : /^\d+(\.\d+)?$/;
         if (!regex.test(val)) {
-            return { valid: false, msg: requireInteger ? 'Debe ser entero válido' : 'Número no válido' };
+            return { valid: false, msg: requireInteger ? 'Debe ser entero' : 'Número no válido' };
         }
         
         let num = parseFloat(val);
@@ -79,9 +78,9 @@ class Utils {
     static generarTablaHTML(cabeceras) {
         let ths = cabeceras.map(c => `<th>${c}</th>`).join('');
         return `
-            <div class="resultados-container fade-in">
-                <h3 class="titulo-resultados">Resultados</h3>
-                <table class="tabla-historial">
+            <div class="resultados-container fade-in" style="margin-top: 20px;">
+                <h3 class="titulo-resultados">Resultados Registrados</h3>
+                <table class="tabla-historial" style="width: 100%; border-collapse: collapse;">
                     <thead><tr>${ths}</tr></thead>
                     <tbody id="historial-body"></tbody>
                 </table>
@@ -558,12 +557,12 @@ class CiclosController {
             case 'ciclo1':
                 html = `
                     <h2 class="titulo-ejercicio">1. Promedio general de grupo</h2>
-                    <div class="controles">
+                    <div class="controles" style="margin-bottom: 15px;">
                         <div class="grupo-input"><label>Número de estudiantes:</label><input type="text" id="n" placeholder="Ej: 3"></div>
                         <button class="btn-ejecutar" id="btn-generar">Generar Estudiantes</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Detalle de Estudiantes', 'Cant. Estudiantes', 'Promedio General Grupo'])}
+                    ${Utils.generarTablaHTML(['Nombre', 'Notas Registradas', 'Promedio', 'Aprobadas', 'Reprobadas'])}
                 `;
                 break;
             case 'ciclo2':
@@ -628,45 +627,45 @@ class CiclosController {
             }
 
             const area = document.getElementById('dynamic-area');
-            let html = `<div class="students-wrapper">`;
+            let html = `<div class="students-wrapper" style="display: flex; flex-direction: column; gap: 15px;">`;
 
             for (let i = 1; i <= n; i++) {
                 html += `
-                    <div class="student-card" data-student-id="${i}" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.15);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div class="student-card" data-student-id="${i}" style="border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 15px; background: rgba(255,255,255,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                             <h3 style="margin: 0; font-size: 1.1em;">Estudiante #${i}</h3>
-                            <button type="button" class="btn-del-student btn-secundario" style="padding: 4px 8px; font-size: 0.8em; cursor: pointer;">✕ Eliminar</button>
+                            <button type="button" class="btn-del-student btn-secundario" style="padding: 4px 10px; font-size: 0.8em; cursor: pointer;">✕ Eliminar Estudiante</button>
                         </div>
                         <div class="grupo-input" style="margin-bottom: 12px;">
-                            <label>Nombre del Estudiante:</label>
-                            <input type="text" class="student-name" value="Estudiante ${i}">
+                            <label>Nombre:</label>
+                            <input type="text" class="student-name" value="Estudiante ${i}" placeholder="Ej: Pepa">
                         </div>
                         <div class="subjects-section" style="margin-bottom: 10px;">
-                            <label style="display: block; margin-bottom: 6px;"><strong>Materias y Notas:</strong></label>
-                            <div class="subjects-list">
-                                <div class="subject-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                                    <input type="text" class="subject-name" placeholder="Materia 1" value="Materia 1" style="flex: 2;">
+                            <label style="display: block; margin-bottom: 8px;"><strong>Materias y Notas:</strong></label>
+                            <div class="subjects-list" style="display: flex; flex-direction: column; gap: 8px;">
+                                <div class="subject-row" style="display: flex; gap: 10px; align-items: center;">
+                                    <input type="text" class="subject-name" placeholder="Materia (ej: N1)" value="N1" style="flex: 1;">
                                     <input type="text" class="subject-grade" placeholder="Nota (0.0 - 5.0)" style="flex: 1;">
-                                    <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 10px; cursor: pointer;">✕</button>
+                                    <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 12px; cursor: pointer;">✕</button>
                                 </div>
                             </div>
-                            <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 5px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
+                            <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
                         </div>
-                        <div class="student-live-summary" style="display: flex; gap: 15px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.9em;">
+                        <div class="student-live-summary" style="display: flex; gap: 20px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.95em;">
                             <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
-                            <span><strong>Aprobadas (≥3.0):</strong> <span class="res-aprob">0</span></span>
-                            <span><strong>Reprobadas (<3.0):</strong> <span class="res-reprob">0</span></span>
+                            <span><strong>Aprobadas (≥3.0):</strong> <span class="res-aprob" style="color: #4ade80;">0</span></span>
+                            <span><strong>Reprobadas (<3.0):</strong> <span class="res-reprob" style="color: #f87171;">0</span></span>
                         </div>
                     </div>
                 `;
             }
 
             html += `</div>
-                <div class="group-summary-bar" style="padding: 12px; margin-bottom: 15px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
-                    <strong>Promedio General del Grupo:</strong> <span class="res-prom-grupo" style="font-weight: bold; font-size: 1.1em;">-</span>
+                <div class="group-summary-bar" style="padding: 12px 15px; margin: 15px 0; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
+                    <strong>Promedio General del Grupo:</strong> <span class="res-prom-grupo" style="font-weight: bold; font-size: 1.1em; color: #60a5fa;">-</span>
                 </div>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                    <button type="button" class="btn-add-student btn-secundario" style="padding: 8px 15px; cursor: pointer;">+ Agregar Otro Estudiante</button>
+                    <button type="button" class="btn-add-student btn-secundario" style="padding: 10px 15px; cursor: pointer;">+ Agregar Otro Estudiante</button>
                     <button type="button" class="btn-ejecutar" id="btn-procesar-ciclo1">Registrar en Historial</button>
                 </div>
             `;
@@ -730,15 +729,12 @@ class CiclosController {
         document.getElementById('btn-procesar-dinamico').addEventListener('click', () => this.procesarDatos(id, n));
     }
 
-    /**
-     * Listeners reactivos para ciclo 1
-     */
     static setupCiclo1Events() {
         const area = document.getElementById('dynamic-area');
         if (!area) return;
 
         area.oninput = (e) => {
-            if (e.target.classList.contains('subject-grade') || e.target.classList.contains('student-name')) {
+            if (e.target.classList.contains('subject-grade') || e.target.classList.contains('student-name') || e.target.classList.contains('subject-name')) {
                 CiclosController.calcularCiclo1Dinamicamente();
             }
         };
@@ -751,11 +747,11 @@ class CiclosController {
                 const count = list.querySelectorAll('.subject-row').length + 1;
                 const subRow = document.createElement('div');
                 subRow.className = 'subject-row';
-                subRow.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 8px;';
+                subRow.style.cssText = 'display: flex; gap: 10px; align-items: center;';
                 subRow.innerHTML = `
-                    <input type="text" class="subject-name" placeholder="Materia ${count}" value="Materia ${count}" style="flex: 2;">
+                    <input type="text" class="subject-name" placeholder="Materia (ej: N${count})" value="N${count}" style="flex: 1;">
                     <input type="text" class="subject-grade" placeholder="Nota (0.0 - 5.0)" style="flex: 1;">
-                    <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 10px; cursor: pointer;">✕</button>
+                    <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 12px; cursor: pointer;">✕</button>
                 `;
                 list.appendChild(subRow);
                 CiclosController.calcularCiclo1Dinamicamente();
@@ -777,31 +773,31 @@ class CiclosController {
                 const newCard = document.createElement('div');
                 newCard.className = 'student-card';
                 newCard.setAttribute('data-student-id', count);
-                newCard.style.cssText = 'border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.15);';
+                newCard.style.cssText = 'border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 15px; background: rgba(255,255,255,0.03);';
                 newCard.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                         <h3 style="margin: 0; font-size: 1.1em;">Estudiante #${count}</h3>
-                        <button type="button" class="btn-del-student btn-secundario" style="padding: 4px 8px; font-size: 0.8em; cursor: pointer;">✕ Eliminar</button>
+                        <button type="button" class="btn-del-student btn-secundario" style="padding: 4px 10px; font-size: 0.8em; cursor: pointer;">✕ Eliminar Estudiante</button>
                     </div>
                     <div class="grupo-input" style="margin-bottom: 12px;">
-                        <label>Nombre del Estudiante:</label>
-                        <input type="text" class="student-name" value="Estudiante ${count}">
+                        <label>Nombre:</label>
+                        <input type="text" class="student-name" value="Estudiante ${count}" placeholder="Ej: Pepe">
                     </div>
                     <div class="subjects-section" style="margin-bottom: 10px;">
-                        <label style="display: block; margin-bottom: 6px;"><strong>Materias y Notas:</strong></label>
-                        <div class="subjects-list">
-                            <div class="subject-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                                <input type="text" class="subject-name" placeholder="Materia 1" value="Materia 1" style="flex: 2;">
+                        <label style="display: block; margin-bottom: 8px;"><strong>Materias y Notas:</strong></label>
+                        <div class="subjects-list" style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="subject-row" style="display: flex; gap: 10px; align-items: center;">
+                                <input type="text" class="subject-name" placeholder="Materia (ej: N1)" value="N1" style="flex: 1;">
                                 <input type="text" class="subject-grade" placeholder="Nota (0.0 - 5.0)" style="flex: 1;">
-                                <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 10px; cursor: pointer;">✕</button>
+                                <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 12px; cursor: pointer;">✕</button>
                             </div>
                         </div>
-                        <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 5px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
+                        <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
                     </div>
-                    <div class="student-live-summary" style="display: flex; gap: 15px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.9em;">
+                    <div class="student-live-summary" style="display: flex; gap: 20px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.95em;">
                         <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
-                        <span><strong>Aprobadas (≥3.0):</strong> <span class="res-aprob">0</span></span>
-                        <span><strong>Reprobadas (<3.0):</strong> <span class="res-reprob">0</span></span>
+                        <span><strong>Aprobadas (≥3.0):</strong> <span class="res-aprob" style="color: #4ade80;">0</span></span>
+                        <span><strong>Reprobadas (<3.0):</strong> <span class="res-reprob" style="color: #f87171;">0</span></span>
                     </div>
                 `;
                 wrapper.appendChild(newCard);
@@ -830,35 +826,37 @@ class CiclosController {
         };
     }
 
-    /**
-     * Cálculo reactivo inmediato en tiempo real
-     */
     static calcularCiclo1Dinamicamente() {
         const area = document.getElementById('dynamic-area');
-        if (!area) return { valid: false };
+        if (!area) return { valid: false, estudiantes: [] };
 
         const studentCards = area.querySelectorAll('.student-card');
         let totalPromedios = 0;
         let estudiantesValidosCount = 0;
         let todoValido = true;
-        let resumenEstudiantes = [];
+        let estudiantesData = [];
 
         studentCards.forEach((card, idx) => {
             const nameInput = card.querySelector('.student-name');
             let nombre = nameInput ? nameInput.value.trim() : `Estudiante ${idx + 1}`;
             if (nombre === '') nombre = `Estudiante ${idx + 1}`;
 
-            const gradeInputs = card.querySelectorAll('.subject-grade');
+            const subjectRows = card.querySelectorAll('.subject-row');
             let sumaNotas = 0;
             let notasCount = 0;
             let aprobadas = 0;
             let reprobadas = 0;
-            let cardValida = true;
+            let cardValida = subjectRows.length > 0;
+            let notasTexto = [];
 
-            gradeInputs.forEach(inp => {
-                Utils.clearError(inp);
-                const valRaw = inp.value.trim();
+            subjectRows.forEach(row => {
+                const subNameInput = row.querySelector('.subject-name');
+                const gradeInput = row.querySelector('.subject-grade');
+                
+                let subNombre = subNameInput && subNameInput.value.trim() !== '' ? subNameInput.value.trim() : 'Materia';
+                Utils.clearError(gradeInput);
 
+                const valRaw = gradeInput.value.trim();
                 if (valRaw === '') {
                     cardValida = false;
                     return;
@@ -866,15 +864,18 @@ class CiclosController {
 
                 const check = Utils.validateValue(valRaw, false, false);
                 if (!check.valid || check.num < 0 || check.num > 5) {
-                    Utils.showError(inp, 'Nota 0-5');
+                    Utils.showError(gradeInput, '0.0 - 5.0');
                     cardValida = false;
                     todoValido = false;
                 } else {
                     sumaNotas += check.num;
                     notasCount++;
-                    if (check.num >= 3.0) aprobadas++;
-                    else reprobadosCount(); // Helper call replacement inline
-                    if (check.num < 3.0) reprobadas++;
+                    if (check.num >= 3.0) {
+                        aprobadas++;
+                    } else {
+                        reprobadas++;
+                    }
+                    notasTexto.push(`${subNombre}: ${check.num.toFixed(1)}`);
                 }
             });
 
@@ -891,7 +892,13 @@ class CiclosController {
                 totalPromedios += promInd;
                 estudiantesValidosCount++;
 
-                resumenEstudiantes.push(`<strong>${nombre}:</strong> Prom ${Utils.formatNumber(promInd)} (Aprob: ${aprobadas}, Rep: ${reprobadas})`);
+                estudiantesData.push({
+                    nombre: nombre,
+                    notasStr: notasTexto.join(' | '),
+                    promedio: Utils.formatNumber(promInd),
+                    aprobadas: aprobadas,
+                    reprobadas: reprobadas
+                });
             } else {
                 promSpan.textContent = '-';
                 aprobSpan.textContent = '-';
@@ -912,7 +919,7 @@ class CiclosController {
 
         return {
             valid: todoValido && estudiantesValidosCount === studentCards.length && studentCards.length > 0,
-            resumenEstudiantes,
+            estudiantes: estudiantesData,
             cantEstudiantes: studentCards.length,
             promGralGrupo: Utils.formatNumber(promGralGrupo)
         };
@@ -920,19 +927,23 @@ class CiclosController {
 
     static guardarCiclo1EnHistorial() {
         const res = CiclosController.calcularCiclo1Dinamicamente();
-        const area = document.getElementById('dynamic-area');
 
         if (!res.valid) {
-            alert('Asegúrese de ingresar un nombre y todas las notas válidas (0.0 - 5.0) para cada materia.');
+            alert('Asegúrese de ingresar un nombre y todas las notas válidas (entre 0.0 y 5.0) para cada estudiante.');
             return;
         }
 
-        Utils.agregarFila([
-            res.resumenEstudiantes.join('<br>'),
-            res.cantEstudiantes,
-            res.promGralGrupo
-        ]);
+        res.estudiantes.forEach(est => {
+            Utils.agregarFila([
+                `<strong>${est.nombre}</strong>`,
+                est.notasStr,
+                `<strong>${est.promedio}</strong>`,
+                `<span style="color: #22c55e; font-weight: bold;">${est.aprobadas}</span>`,
+                `<span style="color: #ef4444; font-weight: bold;">${est.reprobadas}</span>`
+            ]);
+        });
 
+        const area = document.getElementById('dynamic-area');
         area.innerHTML = '';
         Utils.clearAllFields(['n']);
     }
