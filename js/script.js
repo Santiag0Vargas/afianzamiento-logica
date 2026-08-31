@@ -79,7 +79,7 @@ class Utils {
         let ths = cabeceras.map(c => `<th>${c}</th>`).join('');
         return `
             <div class="resultados-container fade-in" style="margin-top: 20px;">
-                <h3 class="titulo-resultados">Resultados Registrados</h3>
+                <h3 class="titulo-resultados">Historial de Calificaciones</h3>
                 <table class="tabla-historial" style="width: 100%; border-collapse: collapse;">
                     <thead><tr>${ths}</tr></thead>
                     <tbody id="historial-body"></tbody>
@@ -548,7 +548,7 @@ class CondicionalesController {
 }
 
 /**
- * CiclosController: Módulo 3 (5 ejercicios) - DOM Dinámico
+ * CiclosController: Módulo 3 (5 ejercicios) - DOM Dinámico Matricial
  */
 class CiclosController {
     static render(id, area) {
@@ -559,10 +559,10 @@ class CiclosController {
                     <h2 class="titulo-ejercicio">1. Promedio general de grupo</h2>
                     <div class="controles" style="margin-bottom: 15px;">
                         <div class="grupo-input"><label>Número de estudiantes:</label><input type="text" id="n" placeholder="Ej: 3"></div>
-                        <button class="btn-ejecutar" id="btn-generar">Generar Estudiantes</button>
+                        <button class="btn-ejecutar" id="btn-generar">Generar Formulario</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Nombre', 'Notas Registradas', 'Promedio', 'Aprobadas', 'Reprobadas'])}
+                    ${Utils.generarTablaHTML(['Nombre', 'Notas (N1, N2, N3, N4...)', 'Promedio', 'Aprobadas (≥3.0)', 'Reprobadas (<3.0)'])}
                 `;
                 break;
             case 'ciclo2':
@@ -641,7 +641,7 @@ class CiclosController {
                             <input type="text" class="student-name" value="Estudiante ${i}" placeholder="Ej: Pepa">
                         </div>
                         <div class="subjects-section" style="margin-bottom: 10px;">
-                            <label style="display: block; margin-bottom: 8px;"><strong>Materias y Notas:</strong></label>
+                            <label style="display: block; margin-bottom: 8px;"><strong>Notas del Estudiante:</strong></label>
                             <div class="subjects-list" style="display: flex; flex-direction: column; gap: 8px;">
                                 <div class="subject-row" style="display: flex; gap: 10px; align-items: center;">
                                     <input type="text" class="subject-name" placeholder="Materia (ej: N1)" value="N1" style="flex: 1;">
@@ -649,7 +649,7 @@ class CiclosController {
                                     <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 12px; cursor: pointer;">✕</button>
                                 </div>
                             </div>
-                            <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
+                            <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">+ Agregar Nota/Materia</button>
                         </div>
                         <div class="student-live-summary" style="display: flex; gap: 20px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.95em;">
                             <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
@@ -784,7 +784,7 @@ class CiclosController {
                         <input type="text" class="student-name" value="Estudiante ${count}" placeholder="Ej: Pepe">
                     </div>
                     <div class="subjects-section" style="margin-bottom: 10px;">
-                        <label style="display: block; margin-bottom: 8px;"><strong>Materias y Notas:</strong></label>
+                        <label style="display: block; margin-bottom: 8px;"><strong>Notas del Estudiante:</strong></label>
                         <div class="subjects-list" style="display: flex; flex-direction: column; gap: 8px;">
                             <div class="subject-row" style="display: flex; gap: 10px; align-items: center;">
                                 <input type="text" class="subject-name" placeholder="Materia (ej: N1)" value="N1" style="flex: 1;">
@@ -792,7 +792,7 @@ class CiclosController {
                                 <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 12px; cursor: pointer;">✕</button>
                             </div>
                         </div>
-                        <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
+                        <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">+ Agregar Nota/Materia</button>
                     </div>
                     <div class="student-live-summary" style="display: flex; gap: 20px; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.95em;">
                         <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
@@ -853,7 +853,7 @@ class CiclosController {
                 const subNameInput = row.querySelector('.subject-name');
                 const gradeInput = row.querySelector('.subject-grade');
                 
-                let subNombre = subNameInput && subNameInput.value.trim() !== '' ? subNameInput.value.trim() : 'Materia';
+                let subNombre = subNameInput && subNameInput.value.trim() !== '' ? subNameInput.value.trim() : 'N';
                 Utils.clearError(gradeInput);
 
                 const valRaw = gradeInput.value.trim();
