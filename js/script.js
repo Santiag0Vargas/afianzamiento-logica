@@ -343,7 +343,7 @@ class SecuencialesController {
                 let l = Utils.parseInput('l');
                 let a = Utils.parseInput('a');
                 let h = Utils.parseInput('h');
-                let cant = Utils.parseInput('cant', false, true); // Exige entero
+                let cant = Utils.parseInput('cant', false, true);
                 let costo = Utils.parseInput('costo');
                 if (l === null || a === null || h === null || cant === null || costo === null) return;
                 let volTotal = l * a * h * cant;
@@ -462,7 +462,7 @@ class CondicionalesController {
                 break;
             }
             case 'cond3': {
-                let cant = Utils.parseInput('cant', false, true); // Exige entero
+                let cant = Utils.parseInput('cant', false, true);
                 if (cant === null) return;
                 if (cant <= 0) {
                     Utils.showError(document.getElementById('cant'), 'Debe ser mayor a 0');
@@ -494,7 +494,7 @@ class CondicionalesController {
                 break;
             }
             case 'cond6': {
-                let p = Utils.parseInput('personas', false, true); // Exige entero
+                let p = Utils.parseInput('personas', false, true);
                 if (p === null) return;
                 if (p <= 0) {
                     Utils.showError(document.getElementById('personas'), 'Debe ser mayor a 0');
@@ -512,7 +512,7 @@ class CondicionalesController {
                 break;
             }
             case 'cond7': {
-                let cita = Utils.parseInput('cita', false, true); // Exige entero
+                let cita = Utils.parseInput('cita', false, true);
                 if (cita === null) return;
                 if (cita <= 0) {
                     Utils.showError(document.getElementById('cita'), 'Debe ser mayor a 0');
@@ -526,7 +526,6 @@ class CondicionalesController {
                 let costoCita = 0;
                 let total = 0;
 
-                // Cálculo O(1) directo sin bucles (imposible de congelar)
                 if (cita <= 3) {
                     costoCita = 100000;
                     total = cita * 100000;
@@ -560,11 +559,11 @@ class CiclosController {
                 html = `
                     <h2 class="titulo-ejercicio">1. Promedio general de grupo</h2>
                     <div class="controles">
-                        <div class="grupo-input"><label>Número de estudiantes (N):</label><input type="text" id="n"></div>
-                        <button class="btn-ejecutar" id="btn-generar">Generar Campos</button>
+                        <div class="grupo-input"><label>Número de estudiantes:</label><input type="text" id="n" placeholder="Ej: 3"></div>
+                        <button class="btn-ejecutar" id="btn-generar">Generar Estudiantes</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['N Estudiantes', 'Promedio General'])}
+                    ${Utils.generarTablaHTML(['Detalle de Estudiantes', 'Cant. Estudiantes', 'Promedio General Grupo'])}
                 `;
                 break;
             case 'ciclo2':
@@ -620,10 +619,67 @@ class CiclosController {
     }
 
     static generarCampos(id) {
+        if (id === 'ciclo1') {
+            let n = Utils.parseInput('n', false, true);
+            if (n === null) return;
+            if (n <= 0) {
+                Utils.showError(document.getElementById('n'), 'Debe ser > 0');
+                return;
+            }
+
+            const area = document.getElementById('dynamic-area');
+            let html = `<div class="students-wrapper">`;
+
+            for (let i = 1; i <= n; i++) {
+                html += `
+                    <div class="student-card" data-student-id="${i}" style="border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.15);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0; font-size: 1.1em;">Estudiante #${i}</h3>
+                            <button type="button" class="btn-del-student btn-secundario" style="padding: 4px 8px; font-size: 0.8em; cursor: pointer;">✕ Eliminar</button>
+                        </div>
+                        <div class="grupo-input" style="margin-bottom: 12px;">
+                            <label>Nombre del Estudiante:</label>
+                            <input type="text" class="student-name" value="Estudiante ${i}">
+                        </div>
+                        <div class="subjects-section" style="margin-bottom: 10px;">
+                            <label style="display: block; margin-bottom: 6px;"><strong>Materias y Notas:</strong></label>
+                            <div class="subjects-list">
+                                <div class="subject-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                    <input type="text" class="subject-name" placeholder="Materia 1" value="Materia 1" style="flex: 2;">
+                                    <input type="text" class="subject-grade" placeholder="Nota (0.0 - 5.0)" style="flex: 1;">
+                                    <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 10px; cursor: pointer;">✕</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 5px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
+                        </div>
+                        <div class="student-live-summary" style="display: flex; gap: 15px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.9em;">
+                            <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
+                            <span><strong>Aprobadas (≥3.0):</strong> <span class="res-aprob">0</span></span>
+                            <span><strong>Reprobadas (<3.0):</strong> <span class="res-reprob">0</span></span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            html += `</div>
+                <div class="group-summary-bar" style="padding: 12px; margin-bottom: 15px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px;">
+                    <strong>Promedio General del Grupo:</strong> <span class="res-prom-grupo" style="font-weight: bold; font-size: 1.1em;">-</span>
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button type="button" class="btn-add-student btn-secundario" style="padding: 8px 15px; cursor: pointer;">+ Agregar Otro Estudiante</button>
+                    <button type="button" class="btn-ejecutar" id="btn-procesar-ciclo1">Registrar en Historial</button>
+                </div>
+            `;
+
+            area.innerHTML = html;
+            CiclosController.setupCiclo1Events();
+            CiclosController.calcularCiclo1Dinamicamente();
+            return;
+        }
+
         let n = Utils.parseInput('n', false, true);
         if (n === null) return;
         
-        // Bloqueo de colapso de RAM/DOM por N masivo
         if (n <= 0 || n > 100) {
             Utils.showError(document.getElementById('n'), n <= 0 ? 'Debe ser > 0' : 'Máx 100 registros');
             return;
@@ -632,13 +688,7 @@ class CiclosController {
         const area = document.getElementById('dynamic-area');
         let html = '';
 
-        if (id === 'ciclo1') {
-            for (let i = 1; i <= n; i++) {
-                html += `<div class="student-row">
-                    <div class="grupo-input"><label>Nota Estudiante ${i}:</label><input type="text" class="dinamico-val"></div>
-                </div>`;
-            }
-        } else if (id === 'ciclo2') {
+        if (id === 'ciclo2') {
             for (let i = 1; i <= n; i++) {
                 html += `<div class="student-row">
                     <div class="grupo-input"><label>ID:</label><input type="text" class="dinamico-id input-corto"></div>
@@ -680,26 +730,217 @@ class CiclosController {
         document.getElementById('btn-procesar-dinamico').addEventListener('click', () => this.procesarDatos(id, n));
     }
 
-    static procesarDatos(id, n) {
+    /**
+     * Listeners reactivos para ciclo 1
+     */
+    static setupCiclo1Events() {
         const area = document.getElementById('dynamic-area');
-        
-        if (id === 'ciclo1') {
-            let inputs = area.querySelectorAll('.dinamico-val');
-            let suma = 0;
-            for (let inp of inputs) {
-                let check = Utils.validateValue(inp.value);
-                if (!check.valid || check.num < 0 || check.num > 5) {
-                    Utils.showError(inp, 'Nota 0-5');
+        if (!area) return;
+
+        area.oninput = (e) => {
+            if (e.target.classList.contains('subject-grade') || e.target.classList.contains('student-name')) {
+                CiclosController.calcularCiclo1Dinamicamente();
+            }
+        };
+
+        area.onclick = (e) => {
+            const btnAddSub = e.target.closest('.btn-add-subject');
+            if (btnAddSub) {
+                const card = btnAddSub.closest('.student-card');
+                const list = card.querySelector('.subjects-list');
+                const count = list.querySelectorAll('.subject-row').length + 1;
+                const subRow = document.createElement('div');
+                subRow.className = 'subject-row';
+                subRow.style.cssText = 'display: flex; gap: 8px; align-items: center; margin-bottom: 8px;';
+                subRow.innerHTML = `
+                    <input type="text" class="subject-name" placeholder="Materia ${count}" value="Materia ${count}" style="flex: 2;">
+                    <input type="text" class="subject-grade" placeholder="Nota (0.0 - 5.0)" style="flex: 1;">
+                    <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 10px; cursor: pointer;">✕</button>
+                `;
+                list.appendChild(subRow);
+                CiclosController.calcularCiclo1Dinamicamente();
+                return;
+            }
+
+            const btnDelSub = e.target.closest('.btn-del-subject');
+            if (btnDelSub) {
+                const subRow = btnDelSub.closest('.subject-row');
+                subRow.remove();
+                CiclosController.calcularCiclo1Dinamicamente();
+                return;
+            }
+
+            const btnAddStud = e.target.closest('.btn-add-student');
+            if (btnAddStud) {
+                const wrapper = area.querySelector('.students-wrapper');
+                const count = wrapper.querySelectorAll('.student-card').length + 1;
+                const newCard = document.createElement('div');
+                newCard.className = 'student-card';
+                newCard.setAttribute('data-student-id', count);
+                newCard.style.cssText = 'border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 15px; margin-bottom: 15px; background: rgba(0,0,0,0.15);';
+                newCard.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; font-size: 1.1em;">Estudiante #${count}</h3>
+                        <button type="button" class="btn-del-student btn-secundario" style="padding: 4px 8px; font-size: 0.8em; cursor: pointer;">✕ Eliminar</button>
+                    </div>
+                    <div class="grupo-input" style="margin-bottom: 12px;">
+                        <label>Nombre del Estudiante:</label>
+                        <input type="text" class="student-name" value="Estudiante ${count}">
+                    </div>
+                    <div class="subjects-section" style="margin-bottom: 10px;">
+                        <label style="display: block; margin-bottom: 6px;"><strong>Materias y Notas:</strong></label>
+                        <div class="subjects-list">
+                            <div class="subject-row" style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                <input type="text" class="subject-name" placeholder="Materia 1" value="Materia 1" style="flex: 2;">
+                                <input type="text" class="subject-grade" placeholder="Nota (0.0 - 5.0)" style="flex: 1;">
+                                <button type="button" class="btn-del-subject btn-secundario" style="padding: 6px 10px; cursor: pointer;">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 5px; padding: 6px 12px; cursor: pointer;">+ Agregar Materia</button>
+                    </div>
+                    <div class="student-live-summary" style="display: flex; gap: 15px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.2); font-size: 0.9em;">
+                        <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
+                        <span><strong>Aprobadas (≥3.0):</strong> <span class="res-aprob">0</span></span>
+                        <span><strong>Reprobadas (<3.0):</strong> <span class="res-reprob">0</span></span>
+                    </div>
+                `;
+                wrapper.appendChild(newCard);
+                CiclosController.calcularCiclo1Dinamicamente();
+                return;
+            }
+
+            const btnDelStud = e.target.closest('.btn-del-student');
+            if (btnDelStud) {
+                const wrapper = area.querySelector('.students-wrapper');
+                const cards = wrapper.querySelectorAll('.student-card');
+                if (cards.length <= 1) {
+                    alert('Debe existir al menos un estudiante en el grupo.');
                     return;
                 }
-                Utils.clearError(inp);
-                suma += check.num;
+                btnDelStud.closest('.student-card').remove();
+                CiclosController.calcularCiclo1Dinamicamente();
+                return;
             }
-            Utils.agregarFila([n, Utils.formatNumber(suma / n)]);
-            area.innerHTML = '';
-            Utils.clearAllFields(['n']);
-        } 
-        else if (id === 'ciclo2') {
+
+            const btnProcesar = e.target.closest('#btn-procesar-ciclo1');
+            if (btnProcesar) {
+                CiclosController.guardarCiclo1EnHistorial();
+                return;
+            }
+        };
+    }
+
+    /**
+     * Cálculo reactivo inmediato en tiempo real
+     */
+    static calcularCiclo1Dinamicamente() {
+        const area = document.getElementById('dynamic-area');
+        if (!area) return { valid: false };
+
+        const studentCards = area.querySelectorAll('.student-card');
+        let totalPromedios = 0;
+        let estudiantesValidosCount = 0;
+        let todoValido = true;
+        let resumenEstudiantes = [];
+
+        studentCards.forEach((card, idx) => {
+            const nameInput = card.querySelector('.student-name');
+            let nombre = nameInput ? nameInput.value.trim() : `Estudiante ${idx + 1}`;
+            if (nombre === '') nombre = `Estudiante ${idx + 1}`;
+
+            const gradeInputs = card.querySelectorAll('.subject-grade');
+            let sumaNotas = 0;
+            let notasCount = 0;
+            let aprobadas = 0;
+            let reprobadas = 0;
+            let cardValida = true;
+
+            gradeInputs.forEach(inp => {
+                Utils.clearError(inp);
+                const valRaw = inp.value.trim();
+
+                if (valRaw === '') {
+                    cardValida = false;
+                    return;
+                }
+
+                const check = Utils.validateValue(valRaw, false, false);
+                if (!check.valid || check.num < 0 || check.num > 5) {
+                    Utils.showError(inp, 'Nota 0-5');
+                    cardValida = false;
+                    todoValido = false;
+                } else {
+                    sumaNotas += check.num;
+                    notasCount++;
+                    if (check.num >= 3.0) aprobadas++;
+                    else reprobadosCount(); // Helper call replacement inline
+                    if (check.num < 3.0) reprobadas++;
+                }
+            });
+
+            const promSpan = card.querySelector('.res-prom');
+            const aprobSpan = card.querySelector('.res-aprob');
+            const reprobSpan = card.querySelector('.res-reprob');
+
+            if (cardValida && notasCount > 0) {
+                const promInd = sumaNotas / notasCount;
+                promSpan.textContent = Utils.formatNumber(promInd);
+                aprobSpan.textContent = aprobadas;
+                reprobSpan.textContent = reprobadas;
+
+                totalPromedios += promInd;
+                estudiantesValidosCount++;
+
+                resumenEstudiantes.push(`<strong>${nombre}:</strong> Prom ${Utils.formatNumber(promInd)} (Aprob: ${aprobadas}, Rep: ${reprobadas})`);
+            } else {
+                promSpan.textContent = '-';
+                aprobSpan.textContent = '-';
+                reprobSpan.textContent = '-';
+                todoValido = false;
+            }
+        });
+
+        const promGrupoSpan = area.querySelector('.res-prom-grupo');
+        let promGralGrupo = 0;
+
+        if (estudiantesValidosCount > 0) {
+            promGralGrupo = totalPromedios / estudiantesValidosCount;
+            if (promGrupoSpan) promGrupoSpan.textContent = Utils.formatNumber(promGralGrupo);
+        } else {
+            if (promGrupoSpan) promGrupoSpan.textContent = '-';
+        }
+
+        return {
+            valid: todoValido && estudiantesValidosCount === studentCards.length && studentCards.length > 0,
+            resumenEstudiantes,
+            cantEstudiantes: studentCards.length,
+            promGralGrupo: Utils.formatNumber(promGralGrupo)
+        };
+    }
+
+    static guardarCiclo1EnHistorial() {
+        const res = CiclosController.calcularCiclo1Dinamicamente();
+        const area = document.getElementById('dynamic-area');
+
+        if (!res.valid) {
+            alert('Asegúrese de ingresar un nombre y todas las notas válidas (0.0 - 5.0) para cada materia.');
+            return;
+        }
+
+        Utils.agregarFila([
+            res.resumenEstudiantes.join('<br>'),
+            res.cantEstudiantes,
+            res.promGralGrupo
+        ]);
+
+        area.innerHTML = '';
+        Utils.clearAllFields(['n']);
+    }
+
+    static procesarDatos(id, n) {
+        const area = document.getElementById('dynamic-area');
+
+        if (id === 'ciclo2') {
             let notas = area.querySelectorAll('.dinamico-val');
             let aprobados = 0;
             let reprobados = 0;
