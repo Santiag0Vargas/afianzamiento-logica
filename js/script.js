@@ -443,6 +443,10 @@ class CondicionalesController {
             case 'cond3': {
                 let cant = Utils.parseInput('cant');
                 if (cant === null) return;
+                if (cant <= 0) {
+                    Utils.showError(document.getElementById('cant'), 'Debe ser mayor a 0');
+                    return;
+                }
                 let precio = (cant >= 1000) ? 1100 : 1300;
                 Utils.agregarFila([cant, Utils.formatCurrency(precio), Utils.formatCurrency(cant * precio)]);
                 Utils.clearAllFields(['cant']);
@@ -471,6 +475,10 @@ class CondicionalesController {
             case 'cond6': {
                 let p = Utils.parseInput('personas');
                 if (p === null) return;
+                if (p <= 0) {
+                    Utils.showError(document.getElementById('personas'), 'Debe ser mayor a 0');
+                    return;
+                }
                 let tarifa = 10000;
                 if (p > 150) tarifa = 7500;
                 else if (p > 90) tarifa = 8500;
@@ -481,6 +489,10 @@ class CondicionalesController {
             case 'cond7': {
                 let cita = Utils.parseInput('cita');
                 if (cita === null) return;
+                if (!Number.isInteger(cita) || cita <= 0) {
+                    Utils.showError(document.getElementById('cita'), 'Debe ser un entero > 0');
+                    return;
+                }
                 let total = 0;
                 let costoCita = 0;
                 for (let i = 1; i <= cita; i++) {
@@ -729,7 +741,9 @@ class CiclosController {
         }
         else if (id === 'ciclo5') {
             let rows = area.querySelectorAll('.client-row');
-            let vatio = parseFloat(document.getElementById('vatio').value.replace(',','.'));
+            let vatio = Utils.parseInput('vatio');
+            if (vatio === null) return;
+
             let sumaConsumo = 0;
             let resultHtml = [];
             for (let row of rows) {
@@ -772,26 +786,21 @@ class App {
         
         if (sidebar) {
             sidebar.addEventListener('click', function(e) {
-                // Delegación de eventos para los botones de menú principal
                 const menuBtn = e.target.closest('.menu-btn');
                 if (menuBtn) {
                     const submenu = menuBtn.nextElementSibling;
                     if (submenu) {
-                        // Close other submenus
                         document.querySelectorAll('.submenu').forEach(sub => {
                             if (sub !== submenu) sub.style.display = "none";
                         });
                         submenu.style.display = submenu.style.display === "block" ? "none" : "block";
                     }
-                    return; // Detener ejecución para no afectar otros botones
+                    return;
                 }
                 
-                // Delegación de eventos para los botones de ejercicios
                 const ejercicioBtn = e.target.closest('.ejercicio-btn');
                 if (ejercicioBtn) {
-                    // Remover clase activa de todos los botones
                     document.querySelectorAll('.ejercicio-btn').forEach(b => b.classList.remove('active'));
-                    // Añadir clase activa al botón clickeado
                     ejercicioBtn.classList.add('active');
                     
                     const id = ejercicioBtn.getAttribute('data-ejercicio');
@@ -805,11 +814,10 @@ class App {
 
     static cargarEjercicio(id) {
         const area = document.getElementById('area-ejercicio');
-        area.className = 'tarjeta-ejercicio fade-in'; // Trigger animation
+        area.className = 'tarjeta-ejercicio fade-in';
         
-        // Remove old animation and re-add to trigger it again
         area.style.animation = 'none';
-        area.offsetHeight; /* trigger reflow */
+        area.offsetHeight;
         area.style.animation = null;
 
         if (id.startsWith('sec')) {
@@ -822,5 +830,4 @@ class App {
     }
 }
 
-// Inicializar la aplicación cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', App.init);
