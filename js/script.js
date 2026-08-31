@@ -1,30 +1,42 @@
 /**
- * Utils: Manejo de formato, validaciones y DOM.
+ * Utils: Manejo de formato, validaciones estrictas y DOM.
  */
 class Utils {
-    static parseInput(id, allowNegative = false) {
+    static parseInput(id, allowNegative = false, requireInteger = false) {
         const input = document.getElementById(id);
-        if(!input) return null;
+        if (!input) return null;
         Utils.clearError(input);
         
-        let val = input.value.trim().replace(',', '.');
-        if (val === '') {
-            Utils.showError(input, 'Campo requerido');
+        const res = Utils.validateValue(input.value, allowNegative, requireInteger);
+        if (!res.valid) {
+            Utils.showError(input, res.msg);
             return null;
+        }
+        return res.num;
+    }
+
+    static validateValue(valStr, allowNegative = false, requireInteger = false) {
+        let val = valStr.trim().replace(',', '.');
+        if (val === '') return { valid: false, msg: 'Campo requerido' };
+        
+        // Expresión regular estricta: bloquea "12a3", "10.2.4", "Infinity", etc.
+        const regex = allowNegative ? /^-?\d+(\.\d+)?$/ : /^\d+(\.\d+)?$/;
+        if (!regex.test(val)) {
+            return { valid: false, msg: requireInteger ? 'Debe ser entero válido' : 'Número no válido' };
         }
         
         let num = parseFloat(val);
-        if (isNaN(num)) {
-            Utils.showError(input, 'Debe ser numérico');
-            return null;
+        if (!isFinite(num)) return { valid: false, msg: 'Número excesivo' };
+        
+        if (requireInteger && !Number.isInteger(num)) {
+            return { valid: false, msg: 'Debe ser entero' };
         }
         
         if (!allowNegative && num < 0) {
-            Utils.showError(input, 'No admite negativos');
-            return null;
+            return { valid: false, msg: 'No admite negativos' };
         }
         
-        return num;
+        return { valid: true, num: num };
     }
 
     static showError(input, message) {
@@ -49,7 +61,7 @@ class Utils {
     static clearAllFields(ids) {
         ids.forEach(id => {
             const el = document.getElementById(id);
-            if(el) {
+            if (el) {
                 el.value = '';
                 Utils.clearError(el);
             }
@@ -79,7 +91,7 @@ class Utils {
 
     static agregarFila(valoresArray) {
         const tbody = document.getElementById('historial-body');
-        if(!tbody) return;
+        if (!tbody) return;
         const tr = document.createElement('tr');
         tr.className = 'fade-in';
         valoresArray.forEach(val => {
@@ -87,7 +99,7 @@ class Utils {
             td.innerHTML = val;
             tr.appendChild(td);
         });
-        tbody.insertBefore(tr, tbody.firstChild); 
+        tbody.insertBefore(tr, tbody.firstChild);
     }
 }
 
@@ -226,7 +238,7 @@ class SecuencialesController {
                 let n1 = Utils.parseInput('n1', true);
                 let n2 = Utils.parseInput('n2', true);
                 if (n1 === null || n2 === null) return;
-                Utils.agregarFila([n1, n2, Utils.formatNumber(n1+n2)]);
+                Utils.agregarFila([n1, n2, Utils.formatNumber(n1 + n2)]);
                 Utils.clearAllFields(['n1', 'n2']);
                 break;
             }
@@ -234,7 +246,12 @@ class SecuencialesController {
                 let b = Utils.parseInput('base');
                 let h = Utils.parseInput('altura');
                 if (b === null || h === null) return;
-                Utils.agregarFila([b, h, Utils.formatNumber(b*h)]);
+                if (b <= 0 || h <= 0) {
+                    if (b <= 0) Utils.showError(document.getElementById('base'), 'Debe ser > 0');
+                    if (h <= 0) Utils.showError(document.getElementById('altura'), 'Debe ser > 0');
+                    return;
+                }
+                Utils.agregarFila([b, h, Utils.formatNumber(b * h)]);
                 Utils.clearAllFields(['base', 'altura']);
                 break;
             }
@@ -248,7 +265,7 @@ class SecuencialesController {
                 if (n2 > 5) { Utils.showError(document.getElementById('n2'), 'Nota máx 5.0'); hasError = true; }
                 if (n3 > 5) { Utils.showError(document.getElementById('n3'), 'Nota máx 5.0'); hasError = true; }
                 if (hasError) return;
-                let def = (n1*0.3) + (n2*0.3) + (n3*0.4);
+                let def = (n1 * 0.3) + (n2 * 0.3) + (n3 * 0.4);
                 Utils.agregarFila([n1, n2, n3, Utils.formatNumber(def)]);
                 Utils.clearAllFields(['n1', 'n2', 'n3']);
                 break;
@@ -256,6 +273,10 @@ class SecuencialesController {
             case 'sec4': {
                 let r = Utils.parseInput('radio');
                 if (r === null) return;
+                if (r <= 0) {
+                    Utils.showError(document.getElementById('radio'), 'Radio debe ser > 0');
+                    return;
+                }
                 let area = 3.1416 * Math.pow(r, 2);
                 Utils.agregarFila([r, Utils.formatNumber(area)]);
                 Utils.clearAllFields(['radio']);
@@ -285,7 +306,7 @@ class SecuencialesController {
                     return;
                 }
                 let cateto = Math.sqrt(Math.pow(h, 2) - Math.pow(r, 2));
-                let areaTri = r * cateto; // 2 triangulos * (r*c)/2
+                let areaTri = r * cateto;
                 let areaSemi = (3.1416 * Math.pow(r, 2)) / 2;
                 Utils.agregarFila([h, r, Utils.formatNumber(cateto), Utils.formatNumber(areaTri + areaSemi)]);
                 Utils.clearAllFields(['h', 'r']);
@@ -322,7 +343,7 @@ class SecuencialesController {
                 let l = Utils.parseInput('l');
                 let a = Utils.parseInput('a');
                 let h = Utils.parseInput('h');
-                let cant = Utils.parseInput('cant');
+                let cant = Utils.parseInput('cant', false, true); // Exige entero
                 let costo = Utils.parseInput('costo');
                 if (l === null || a === null || h === null || cant === null || costo === null) return;
                 let volTotal = l * a * h * cant;
@@ -441,7 +462,7 @@ class CondicionalesController {
                 break;
             }
             case 'cond3': {
-                let cant = Utils.parseInput('cant');
+                let cant = Utils.parseInput('cant', false, true); // Exige entero
                 if (cant === null) return;
                 if (cant <= 0) {
                     Utils.showError(document.getElementById('cant'), 'Debe ser mayor a 0');
@@ -473,10 +494,14 @@ class CondicionalesController {
                 break;
             }
             case 'cond6': {
-                let p = Utils.parseInput('personas');
+                let p = Utils.parseInput('personas', false, true); // Exige entero
                 if (p === null) return;
                 if (p <= 0) {
                     Utils.showError(document.getElementById('personas'), 'Debe ser mayor a 0');
+                    return;
+                }
+                if (p > 100000) {
+                    Utils.showError(document.getElementById('personas'), 'Máx 100.000 personas');
                     return;
                 }
                 let tarifa = 10000;
@@ -487,24 +512,35 @@ class CondicionalesController {
                 break;
             }
             case 'cond7': {
-                let cita = Utils.parseInput('cita');
+                let cita = Utils.parseInput('cita', false, true); // Exige entero
                 if (cita === null) return;
-                if (!Number.isInteger(cita) || cita <= 0) {
-                    Utils.showError(document.getElementById('cita'), 'Debe ser un entero > 0');
+                if (cita <= 0) {
+                    Utils.showError(document.getElementById('cita'), 'Debe ser mayor a 0');
                     return;
                 }
-                let total = 0;
-                let costoCita = 0;
-                for (let i = 1; i <= cita; i++) {
-                    let cost = 0;
-                    if (i <= 3) cost = 100000;
-                    else if (i <= 5) cost = 80000;
-                    else if (i <= 8) cost = 70000;
-                    else cost = 50000;
-                    
-                    if (i === cita) costoCita = cost;
-                    total += cost;
+                if (cita > 10000) {
+                    Utils.showError(document.getElementById('cita'), 'Máximo 10.000 citas');
+                    return;
                 }
+
+                let costoCita = 0;
+                let total = 0;
+
+                // Cálculo O(1) directo sin bucles (imposible de congelar)
+                if (cita <= 3) {
+                    costoCita = 100000;
+                    total = cita * 100000;
+                } else if (cita <= 5) {
+                    costoCita = 80000;
+                    total = 300000 + ((cita - 3) * 80000);
+                } else if (cita <= 8) {
+                    costoCita = 70000;
+                    total = 460000 + ((cita - 5) * 70000);
+                } else {
+                    costoCita = 50000;
+                    total = 670000 + ((cita - 8) * 50000);
+                }
+
                 Utils.agregarFila([cita, Utils.formatCurrency(costoCita), Utils.formatCurrency(total)]);
                 Utils.clearAllFields(['cita']);
                 break;
@@ -584,9 +620,12 @@ class CiclosController {
     }
 
     static generarCampos(id) {
-        let n = Utils.parseInput('n');
-        if (n === null || n <= 0 || !Number.isInteger(n)) {
-            Utils.showError(document.getElementById('n'), 'Debe ser un entero mayor a 0');
+        let n = Utils.parseInput('n', false, true);
+        if (n === null) return;
+        
+        // Bloqueo de colapso de RAM/DOM por N masivo
+        if (n <= 0 || n > 100) {
+            Utils.showError(document.getElementById('n'), n <= 0 ? 'Debe ser > 0' : 'Máx 100 registros');
             return;
         }
 
@@ -648,13 +687,13 @@ class CiclosController {
             let inputs = area.querySelectorAll('.dinamico-val');
             let suma = 0;
             for (let inp of inputs) {
-                let val = parseFloat(inp.value.replace(',', '.'));
-                if (isNaN(val) || val < 0 || val > 5) {
+                let check = Utils.validateValue(inp.value);
+                if (!check.valid || check.num < 0 || check.num > 5) {
                     Utils.showError(inp, 'Nota 0-5');
                     return;
                 }
                 Utils.clearError(inp);
-                suma += val;
+                suma += check.num;
             }
             Utils.agregarFila([n, Utils.formatNumber(suma / n)]);
             area.innerHTML = '';
@@ -666,15 +705,15 @@ class CiclosController {
             let reprobados = 0;
             let suma = 0;
             for (let inp of notas) {
-                let val = parseFloat(inp.value.replace(',', '.'));
-                if (isNaN(val) || val < 0 || val > 5) {
+                let check = Utils.validateValue(inp.value);
+                if (!check.valid || check.num < 0 || check.num > 5) {
                     Utils.showError(inp, 'Nota 0-5');
                     return;
                 }
                 Utils.clearError(inp);
-                if (val >= 3.0) aprobados++;
+                if (check.num >= 3.0) aprobados++;
                 else reprobados++;
-                suma += val;
+                suma += check.num;
             }
             Utils.agregarFila([aprobados, reprobados, Utils.formatNumber(suma / n)]);
             area.innerHTML = '';
@@ -690,12 +729,13 @@ class CiclosController {
             let cantPos = 0;
 
             for (let inp of inputs) {
-                let val = parseFloat(inp.value.replace(',', '.'));
-                if (isNaN(val)) {
-                    Utils.showError(inp, 'Requerido');
+                let check = Utils.validateValue(inp.value, true);
+                if (!check.valid) {
+                    Utils.showError(inp, 'No válido');
                     return;
                 }
                 Utils.clearError(inp);
+                let val = check.num;
                 if (val > mayor) mayor = val;
                 if (val < menor) menor = val;
                 if (val > 150) cant150++;
@@ -713,24 +753,24 @@ class CiclosController {
             let resultHtml = [];
             for (let row of rows) {
                 let nombre = row.querySelector('.dinamico-nombre').value;
-                if(nombre.trim() === '') nombre = 'Estudiante';
+                if (nombre.trim() === '') nombre = 'Estudiante';
                 
                 let inps = [row.querySelector('.dinamico-n1'), row.querySelector('.dinamico-n2'), row.querySelector('.dinamico-n3'), row.querySelector('.dinamico-n4')];
                 let notas = [];
                 let hasError = false;
-                for(let inp of inps) {
-                    let val = parseFloat(inp.value.replace(',','.'));
-                    if(isNaN(val) || val < 0 || val > 5) {
+                for (let inp of inps) {
+                    let check = Utils.validateValue(inp.value);
+                    if (!check.valid || check.num < 0 || check.num > 5) {
                         Utils.showError(inp, 'Nota 0-5');
                         hasError = true;
                     } else {
                         Utils.clearError(inp);
+                        notas.push(check.num);
                     }
-                    notas.push(val);
                 }
                 if (hasError) return;
                 
-                let promInd = (notas[0]+notas[1]+notas[2]+notas[3])/4;
+                let promInd = (notas[0] + notas[1] + notas[2] + notas[3]) / 4;
                 sumaGral += promInd;
                 resultHtml.push(`${nombre}: ${Utils.formatNumber(promInd)}`);
             }
@@ -749,22 +789,23 @@ class CiclosController {
             for (let row of rows) {
                 let nombre = row.querySelector('.dinamico-nombre').value || 'Cliente';
                 let inps = [row.querySelector('.dinamico-ant'), row.querySelector('.dinamico-act')];
-                let ant = parseFloat(inps[0].value.replace(',','.'));
-                let act = parseFloat(inps[1].value.replace(',','.'));
+                
+                let checkAnt = Utils.validateValue(inps[0].value);
+                let checkAct = Utils.validateValue(inps[1].value);
                 
                 let hasError = false;
-                if (isNaN(ant)) { Utils.showError(inps[0], 'Requerido'); hasError = true; } else { Utils.clearError(inps[0]); }
-                if (isNaN(act)) { Utils.showError(inps[1], 'Requerido'); hasError = true; } else { Utils.clearError(inps[1]); }
+                if (!checkAnt.valid) { Utils.showError(inps[0], 'No válido'); hasError = true; } else { Utils.clearError(inps[0]); }
+                if (!checkAct.valid) { Utils.showError(inps[1], 'No válido'); hasError = true; } else { Utils.clearError(inps[1]); }
                 if (hasError) return;
 
-                if (act < ant) {
-                    Utils.showError(inps[1], 'Debe ser > anterior');
+                if (checkAct.num < checkAnt.num) {
+                    Utils.showError(inps[1], 'Debe ser >= anterior');
                     return;
                 } else {
                     Utils.clearError(inps[1]);
                 }
                 
-                let cons = act - ant;
+                let cons = checkAct.num - checkAnt.num;
                 sumaConsumo += cons;
                 let pago = cons * vatio;
                 resultHtml.push(`${nombre} (P: ${Utils.formatCurrency(pago)})`);
