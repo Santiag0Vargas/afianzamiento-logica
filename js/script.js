@@ -1,5 +1,5 @@
 /**
- * Utils: Manejo de formato, validaciones estrictas, seguridad y DOM.
+ * Utils: Manejo de formato, validaciones strictly, seguridad y DOM.
  */
 class Utils {
     // Prevención de ataques XSS (Inyección de HTML/Scripts)
@@ -891,7 +891,6 @@ class CiclosController {
                     } else {
                         reprobadas++;
                     }
-                    // Formato de badge/pill estilizado para cada nota
                     notasTexto.push(`<span style="background: #E0E7FF; color: #3730A3; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85em; display: inline-block; margin: 2px;">${subNombre}: ${check.num.toFixed(1)}</span>`);
                 }
             });
@@ -959,6 +958,19 @@ class CiclosController {
                 `<span style="color: var(--error-coral); font-weight: bold;">${est.reprobadas}</span>`
             ]);
         });
+
+        // VISUALIZACIÓN DEL PROMEDIO GENERAL DEL GRUPO EN LA TARJETA VERDE DE HISTORIAL
+        const contenedorResultados = document.querySelector('.resultados-container');
+        if (contenedorResultados) {
+            let resumenGral = contenedorResultados.querySelector('.promedio-grupo-historial');
+            if (!resumenGral) {
+                resumenGral = document.createElement('div');
+                resumenGral.className = 'promedio-grupo-historial';
+                resumenGral.style.cssText = 'margin-top: 20px; padding: 12px 18px; background: rgba(5, 150, 105, 0.08); border: 1px solid rgba(5, 150, 105, 0.25); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; color: var(--success-emerald); font-weight: 600; font-size: 0.95em;';
+                contenedorResultados.appendChild(resumenGral);
+            }
+            resumenGral.innerHTML = `<span>Promedio General del Grupo:</span> <strong style="font-size: 1.2em; font-family: var(--font-mono);">${res.promGralGrupo}</strong>`;
+        }
 
         const area = document.getElementById('dynamic-area');
         area.innerHTML = '';
