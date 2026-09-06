@@ -20,6 +20,7 @@
     
     /* Shadows */
     --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.03);
     
     /* Typography */
     --font-ui: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -235,7 +236,7 @@ body {
     border-radius: 12px;
     padding: 50px;
     width: 100%;
-    max-width: 900px;
+    max-width: 950px;
     box-shadow: var(--shadow-subtle);
 }
 
@@ -353,8 +354,8 @@ body {
     box-shadow: 0 0 0 4px var(--accent-cobalt-light);
 }
 
-/* Botones de Acción */
-.btn-ejecutar {
+/* Botones de Acción - Ahora todos amigables y en Azul */
+.btn-ejecutar, .btn-secundario {
     background: var(--accent-cobalt);
     color: #FFFFFF;
     border: none;
@@ -365,26 +366,27 @@ body {
     font-weight: 600;
     font-family: var(--font-ui);
     transition: all 0.2s ease;
-    height: 46px; /* Matches input height */
+    height: 46px;
     width: 100%;
     box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.btn-ejecutar:hover {
+.btn-ejecutar:hover, .btn-secundario:hover {
     background: #1D4ED8;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
 }
 
-.btn-secundario {
-    background: var(--text-secondary);
-    box-shadow: 0 2px 4px rgba(71, 85, 105, 0.2);
-    margin-top: 15px;
-}
-
-.btn-secundario:hover {
-    background: var(--text-primary);
-    box-shadow: 0 4px 8px rgba(15, 23, 42, 0.3);
+/* Botones secundarios más compactos cuando están dentro de tarjetas */
+.student-card .btn-secundario {
+    height: 38px;
+    font-size: 12px;
+    padding: 6px 14px;
+    width: auto;
 }
 
 /* =========================================
