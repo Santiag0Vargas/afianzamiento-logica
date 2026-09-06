@@ -1,7 +1,19 @@
 /**
- * Utils: Manejo de formato, validaciones estrictas y DOM.
+ * Utils: Manejo de formato, validaciones estrictas, seguridad y DOM.
  */
 class Utils {
+    // NUEVO: Prevención de ataques XSS (Inyección de HTML/Scripts)
+    static escapeHTML(str) {
+        if (typeof str !== 'string') return str;
+        return str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag]));
+    }
+
     static parseInput(id, allowNegative = false, requireInteger = false) {
         const input = document.getElementById(id);
         if (!input) return null;
@@ -79,7 +91,7 @@ class Utils {
         let ths = cabeceras.map(c => `<th>${c}</th>`).join('');
         return `
             <div class="resultados-container fade-in" style="margin-top: 20px;">
-                <h3 class="titulo-resultados">Historial de Calificaciones</h3>
+                <h3 class="titulo-resultados">Historial de Resultados</h3>
                 <table class="tabla-historial" style="width: 100%; border-collapse: collapse;">
                     <thead><tr>${ths}</tr></thead>
                     <tbody id="historial-body"></tbody>
@@ -95,7 +107,8 @@ class Utils {
         tr.className = 'fade-in';
         valoresArray.forEach(val => {
             const td = document.createElement('td');
-            td.innerHTML = val;
+            // innerHTML es seguro aquí porque los datos de usuario ya vienen saneados con escapeHTML
+            td.innerHTML = val; 
             tr.appendChild(td);
         });
         tbody.insertBefore(tr, tbody.firstChild);
@@ -133,7 +146,7 @@ class SecuencialesController {
                 break;
             case 'sec3':
                 html = `
-                    <h2 class="titulo-ejercicio">3. Nota definitiva ITFIP</h2>
+                    <h2 class="titulo-ejercicio">3. Nota definitiva ITFIP / UniEspinal</h2>
                     <div class="controles">
                         <div class="grupo-input"><label>Nota 1 (30%):</label><input type="text" id="n1"></div>
                         <div class="grupo-input"><label>Nota 2 (30%):</label><input type="text" id="n2"></div>
@@ -276,7 +289,8 @@ class SecuencialesController {
                     Utils.showError(document.getElementById('radio'), 'Radio debe ser > 0');
                     return;
                 }
-                let area = 3.1416 * Math.pow(r, 2);
+                // CORRECCIÓN: Uso de constante nativa Math.PI
+                let area = Math.PI * Math.pow(r, 2);
                 Utils.agregarFila([r, Utils.formatNumber(area)]);
                 Utils.clearAllFields(['radio']);
                 break;
@@ -306,7 +320,8 @@ class SecuencialesController {
                 }
                 let cateto = Math.sqrt(Math.pow(h, 2) - Math.pow(r, 2));
                 let areaTri = r * cateto;
-                let areaSemi = (3.1416 * Math.pow(r, 2)) / 2;
+                // CORRECCIÓN: Uso de constante nativa Math.PI
+                let areaSemi = (Math.PI * Math.pow(r, 2)) / 2;
                 Utils.agregarFila([h, r, Utils.formatNumber(cateto), Utils.formatNumber(areaTri + areaSemi)]);
                 Utils.clearAllFields(['h', 'r']);
                 break;
@@ -621,8 +636,9 @@ class CiclosController {
         if (id === 'ciclo1') {
             let n = Utils.parseInput('n', false, true);
             if (n === null) return;
-            if (n <= 0) {
-                Utils.showError(document.getElementById('n'), 'Debe ser > 0');
+            // CORRECCIÓN: Prevención de colapso del navegador en ciclo 1
+            if (n <= 0 || n > 100) {
+                Utils.showError(document.getElementById('n'), n <= 0 ? 'Debe ser > 0' : 'Máx 100 estudiantes');
                 return;
             }
 
@@ -688,11 +704,10 @@ class CiclosController {
         let html = '';
 
         if (id === 'ciclo2') {
+            // CORRECCIÓN: Eliminados campos fantasma de ID y Nombre para no desgastar al usuario
             for (let i = 1; i <= n; i++) {
-                html += `<div class="student-row">
-                    <div class="grupo-input"><label>ID:</label><input type="text" class="dinamico-id input-corto"></div>
-                    <div class="grupo-input"><label>Nombre:</label><input type="text" class="dinamico-nombre"></div>
-                    <div class="grupo-input"><label>Nota:</label><input type="text" class="dinamico-val input-corto"></div>
+                html += `<div class="student-row" style="margin-bottom: 10px;">
+                    <div class="grupo-input"><label>Nota Estudiante ${i}:</label><input type="text" class="dinamico-val input-corto" placeholder="0.0 - 5.0"></div>
                 </div>`;
             }
         } else if (id === 'ciclo3') {
@@ -840,6 +855,9 @@ class CiclosController {
             const nameInput = card.querySelector('.student-name');
             let nombre = nameInput ? nameInput.value.trim() : `Estudiante ${idx + 1}`;
             if (nombre === '') nombre = `Estudiante ${idx + 1}`;
+            
+            // CORRECCIÓN: Saneamiento del string del nombre (Seguridad XSS)
+            nombre = Utils.escapeHTML(nombre);
 
             const subjectRows = card.querySelectorAll('.subject-row');
             let sumaNotas = 0;
@@ -854,6 +872,8 @@ class CiclosController {
                 const gradeInput = row.querySelector('.subject-grade');
                 
                 let subNombre = subNameInput && subNameInput.value.trim() !== '' ? subNameInput.value.trim() : 'N';
+                subNombre = Utils.escapeHTML(subNombre); // Saneamiento
+                
                 Utils.clearError(gradeInput);
 
                 const valRaw = gradeInput.value.trim();
@@ -863,8 +883,8 @@ class CiclosController {
                 }
 
                 const check = Utils.validateValue(valRaw, false, false);
-                if (!check.valid || check.num < 0 || check.num > 5) {
-                    Utils.showError(gradeInput, '0.0 - 5.0');
+                if (!check.valid || check.num > 5) {
+                    Utils.showError(gradeInput, check.valid ? 'Máx 5.0' : check.msg);
                     cardValida = false;
                     todoValido = false;
                 } else {
@@ -958,11 +978,17 @@ class CiclosController {
             let suma = 0;
             for (let inp of notas) {
                 let check = Utils.validateValue(inp.value);
-                if (!check.valid || check.num < 0 || check.num > 5) {
-                    Utils.showError(inp, 'Nota 0-5');
+                // CORRECCIÓN: Aprovechamos mensaje nativo del Utils
+                if (!check.valid) {
+                    Utils.showError(inp, check.msg);
+                    return;
+                }
+                if (check.num > 5) {
+                    Utils.showError(inp, 'Máx 5.0');
                     return;
                 }
                 Utils.clearError(inp);
+                
                 if (check.num >= 3.0) aprobados++;
                 else reprobados++;
                 suma += check.num;
@@ -983,7 +1009,7 @@ class CiclosController {
             for (let inp of inputs) {
                 let check = Utils.validateValue(inp.value, true);
                 if (!check.valid) {
-                    Utils.showError(inp, 'No válido');
+                    Utils.showError(inp, check.msg);
                     return;
                 }
                 Utils.clearError(inp);
@@ -1007,13 +1033,20 @@ class CiclosController {
                 let nombre = row.querySelector('.dinamico-nombre').value;
                 if (nombre.trim() === '') nombre = 'Estudiante';
                 
+                // CORRECCIÓN: Saneamiento de nombre (XSS)
+                nombre = Utils.escapeHTML(nombre);
+                
                 let inps = [row.querySelector('.dinamico-n1'), row.querySelector('.dinamico-n2'), row.querySelector('.dinamico-n3'), row.querySelector('.dinamico-n4')];
                 let notas = [];
                 let hasError = false;
                 for (let inp of inps) {
                     let check = Utils.validateValue(inp.value);
-                    if (!check.valid || check.num < 0 || check.num > 5) {
-                        Utils.showError(inp, 'Nota 0-5');
+                    // CORRECCIÓN: Evitamos redundancia y usamos mensajes dinámicos
+                    if (!check.valid) {
+                        Utils.showError(inp, check.msg);
+                        hasError = true;
+                    } else if (check.num > 5) {
+                        Utils.showError(inp, 'Máx 5.0');
                         hasError = true;
                     } else {
                         Utils.clearError(inp);
@@ -1040,14 +1073,17 @@ class CiclosController {
             let resultHtml = [];
             for (let row of rows) {
                 let nombre = row.querySelector('.dinamico-nombre').value || 'Cliente';
+                nombre = Utils.escapeHTML(nombre); // Saneamiento
+                
                 let inps = [row.querySelector('.dinamico-ant'), row.querySelector('.dinamico-act')];
                 
                 let checkAnt = Utils.validateValue(inps[0].value);
                 let checkAct = Utils.validateValue(inps[1].value);
                 
                 let hasError = false;
-                if (!checkAnt.valid) { Utils.showError(inps[0], 'No válido'); hasError = true; } else { Utils.clearError(inps[0]); }
-                if (!checkAct.valid) { Utils.showError(inps[1], 'No válido'); hasError = true; } else { Utils.clearError(inps[1]); }
+                // CORRECCIÓN: Aprovechamos los mensajes dinámicos propios
+                if (!checkAnt.valid) { Utils.showError(inps[0], checkAnt.msg); hasError = true; } else { Utils.clearError(inps[0]); }
+                if (!checkAct.valid) { Utils.showError(inps[1], checkAct.msg); hasError = true; } else { Utils.clearError(inps[1]); }
                 if (hasError) return;
 
                 if (checkAct.num < checkAnt.num) {
