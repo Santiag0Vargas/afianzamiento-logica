@@ -165,7 +165,7 @@ class SecuencialesController {
                         <div class="grupo-input"><label>Radio (R):</label><input type="text" id="radio"></div>
                         <button class="btn-ejecutar" id="btn-accion">Calcular</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Radio', 'Área (π R²)'])}
+                    ${Utils.generarTablaHTML(['Radio', 'Área'])}
                 `;
                 break;
             case 'sec5':
@@ -199,7 +199,7 @@ class SecuencialesController {
                         <div class="grupo-input"><label>Precio x Galón:</label><input type="text" id="precio"></div>
                         <button class="btn-ejecutar" id="btn-accion">Calcular Ganancia</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Litros', 'Galones', 'Precio/G', 'Ganancia Total'])}
+                    ${Utils.generarTablaHTML(['Litros', 'Galones', 'Precio por Galón', 'Ganancia Total'])}
                 `;
                 break;
             case 'sec8':
@@ -212,7 +212,7 @@ class SecuencialesController {
                         <div class="grupo-input"><label>Y2:</label><input type="text" id="y2" class="input-corto"></div>
                         <button class="btn-ejecutar" id="btn-accion">Calcular D</button>
                     </div>
-                    ${Utils.generarTablaHTML(['(X1, Y1)', '(X2, Y2)', 'Distancia'])}
+                    ${Utils.generarTablaHTML(['Punto 1', 'Punto 2', 'Distancia'])}
                 `;
                 break;
             case 'sec9':
@@ -222,7 +222,7 @@ class SecuencialesController {
                         <div class="grupo-input"><label>Metros (m):</label><input type="text" id="metros"></div>
                         <button class="btn-ejecutar" id="btn-accion">Convertir</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Metros', 'Pulgadas (in)'])}
+                    ${Utils.generarTablaHTML(['Metros', 'Pulgadas'])}
                 `;
                 break;
             case 'sec10':
@@ -236,7 +236,7 @@ class SecuencialesController {
                         <div class="grupo-input"><label>Costo $ / m³:</label><input type="text" id="costo"></div>
                         <button class="btn-ejecutar" id="btn-accion">Calcular Pago</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Medidas (LxAxH)', 'Cant.', 'Vol. Total', 'Pago Realizar'])}
+                    ${Utils.generarTablaHTML(['Medidas', 'Cantidad', 'Volumen Total', 'Total a Pagar'])}
                 `;
                 break;
         }
@@ -414,7 +414,7 @@ class CondicionalesController {
                         <div class="grupo-input"><label>Precio del traje:</label><input type="text" id="precio"></div>
                         <button class="btn-ejecutar" id="btn-accion">Calcular Descuento</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Precio Base', 'Descuento (%)', 'Monto Desc.', 'Precio Final'])}
+                    ${Utils.generarTablaHTML(['Precio Base', 'Porcentaje Descuento', 'Monto Descuento', 'Precio Final'])}
                 `;
                 break;
             case 'cond5':
@@ -426,7 +426,7 @@ class CondicionalesController {
                         <div class="grupo-input"><label>N3:</label><input type="text" id="n3" class="input-corto"></div>
                         <button class="btn-ejecutar" id="btn-accion">Analizar</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Números', 'Mayor', 'Orden Descendente'])}
+                    ${Utils.generarTablaHTML(['Números Involucrados', 'Número Mayor', 'Orden Descendente'])}
                 `;
                 break;
             case 'cond6':
@@ -446,7 +446,7 @@ class CondicionalesController {
                         <div class="grupo-input"><label>Número de cita:</label><input type="text" id="cita"></div>
                         <button class="btn-ejecutar" id="btn-accion">Calcular</button>
                     </div>
-                    ${Utils.generarTablaHTML(['Cita Nº', 'Costo Cita', 'Total Acumulado'])}
+                    ${Utils.generarTablaHTML(['Número de Cita', 'Costo de la Cita', 'Total Acumulado'])}
                 `;
                 break;
         }
@@ -503,7 +503,7 @@ class CondicionalesController {
                 if (n1 === null || n2 === null || n3 === null) return;
                 let arr = [n1, n2, n3];
                 arr.sort((x, y) => y - x);
-                Utils.agregarFila([`${n1}, ${n2}, ${n3}`, arr[0], arr.join(' > ')]);
+                Utils.agregarFila([`${n1}, ${n2}, ${n3}`, arr[0], arr.join(' es mayor que ')]);
                 Utils.clearAllFields(['n1', 'n2', 'n3']);
                 break;
             }
@@ -577,7 +577,7 @@ class CiclosController {
                         <button class="btn-ejecutar" id="btn-generar">Generar Formulario</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Nombre', 'Notas (N1, N2, N3, N4...)', 'Promedio', 'Aprobadas (≥3.0)', 'Reprobadas (<3.0)'])}
+                    ${Utils.generarTablaHTML(['Nombre', 'Detalle de Notas', 'Promedio Final', 'Aprobadas', 'Reprobadas'])}
                 `;
                 break;
             case 'ciclo2':
@@ -588,7 +588,7 @@ class CiclosController {
                         <button class="btn-ejecutar" id="btn-generar">Generar Campos</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Aprobados', 'Reprobados', 'Promedio Gral'])}
+                    ${Utils.generarTablaHTML(['Aprobados', 'Reprobados', 'Promedio General'])}
                 `;
                 break;
             case 'ciclo3':
@@ -599,7 +599,7 @@ class CiclosController {
                         <button class="btn-ejecutar" id="btn-generar">Generar Campos</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Mayor / Menor', '>150', 'Negativos', 'Prom. Positivos'])}
+                    ${Utils.generarTablaHTML(['Mayor / Menor', 'Mayores a 150', 'Negativos', 'Promedio Positivos'])}
                 `;
                 break;
             case 'ciclo4':
@@ -610,7 +610,7 @@ class CiclosController {
                         <button class="btn-ejecutar" id="btn-generar">Generar Campos</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Estudiante', 'Notas', 'Prom. Indiv', 'Prom. Gral'])}
+                    ${Utils.generarTablaHTML(['Estudiante', 'Notas', 'Promedio Individual', 'Promedio General'])}
                 `;
                 break;
             case 'ciclo5':
@@ -622,7 +622,7 @@ class CiclosController {
                         <button class="btn-ejecutar" id="btn-generar">Generar Campos</button>
                     </div>
                     <div id="dynamic-area" class="dynamic-container"></div>
-                    ${Utils.generarTablaHTML(['Cliente', 'Consumo (Kw)', 'Pago', 'Prom. Consumo Gral'])}
+                    ${Utils.generarTablaHTML(['Cliente', 'Consumo (Kw)', 'Pago', 'Promedio Consumo General'])}
                 `;
                 break;
         }
@@ -642,7 +642,6 @@ class CiclosController {
             }
 
             const area = document.getElementById('dynamic-area');
-            // MEJORA DE DISEÑO: Tarjetas en formato cuadro/grid organizadas y limpias
             let html = `<div class="students-wrapper" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 20px; margin-bottom: 20px;">`;
 
             for (let i = 1; i <= n; i++) {
@@ -668,9 +667,9 @@ class CiclosController {
                             <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; width: 100%;">+ Agregar Nota/Materia</button>
                         </div>
                         <div class="student-live-summary" style="display: flex; justify-content: space-between; gap: 10px; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--border-hover); font-size: 0.9em;">
-                            <span><strong>Prom:</strong> <span class="res-prom">-</span></span>
-                            <span><strong>Aprob:</strong> <span class="res-aprob" style="color: var(--success-emerald); font-weight: bold;">0</span></span>
-                            <span><strong>Reprob:</strong> <span class="res-reprob" style="color: var(--error-coral); font-weight: bold;">0</span></span>
+                            <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
+                            <span><strong>Aprobadas:</strong> <span class="res-aprob" style="color: var(--success-emerald); font-weight: bold;">0</span></span>
+                            <span><strong>Reprobadas:</strong> <span class="res-reprob" style="color: var(--error-coral); font-weight: bold;">0</span></span>
                         </div>
                     </div>
                 `;
@@ -810,9 +809,9 @@ class CiclosController {
                         <button type="button" class="btn-add-subject btn-secundario" style="margin-top: 10px; width: 100%;">+ Agregar Nota/Materia</button>
                     </div>
                     <div class="student-live-summary" style="display: flex; justify-content: space-between; gap: 10px; margin-top: 4px; padding-top: 10px; border-top: 1px dashed var(--border-hover); font-size: 0.9em;">
-                        <span><strong>Prom:</strong> <span class="res-prom">-</span></span>
-                        <span><strong>Aprob:</strong> <span class="res-aprob" style="color: var(--success-emerald); font-weight: bold;">0</span></span>
-                        <span><strong>Reprob:</strong> <span class="res-reprob" style="color: var(--error-coral); font-weight: bold;">0</span></span>
+                        <span><strong>Promedio:</strong> <span class="res-prom">-</span></span>
+                        <span><strong>Aprobadas:</strong> <span class="res-aprob" style="color: var(--success-emerald); font-weight: bold;">0</span></span>
+                        <span><strong>Reprobadas:</strong> <span class="res-reprob" style="color: var(--error-coral); font-weight: bold;">0</span></span>
                     </div>
                 `;
                 wrapper.appendChild(newCard);
@@ -892,7 +891,8 @@ class CiclosController {
                     } else {
                         reprobadas++;
                     }
-                    notasTexto.push(`${subNombre}: ${check.num.toFixed(1)}`);
+                    // Formato de badge/pill estilizado para cada nota
+                    notasTexto.push(`<span style="background: #E0E7FF; color: #3730A3; padding: 3px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85em; display: inline-block; margin: 2px;">${subNombre}: ${check.num.toFixed(1)}</span>`);
                 }
             });
 
@@ -911,7 +911,7 @@ class CiclosController {
 
                 estudiantesData.push({
                     nombre: nombre,
-                    notasStr: notasTexto.join(' | '),
+                    notasStr: notasTexto.join(' '),
                     promedio: Utils.formatNumber(promInd),
                     aprobadas: aprobadas,
                     reprobadas: reprobadas
